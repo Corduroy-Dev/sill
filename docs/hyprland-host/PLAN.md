@@ -15,7 +15,7 @@ The task list for `BRIEF.md`. A fresh session resumes from this file, `DECISIONS
 | M5 end to end | not started | |
 | M6 package and hand over | not started | |
 
-Open before M1: Mark's answers to `DECISIONS.md` part 1.
+Nothing is open before M1. Mark answered `DECISIONS.md` part 1 on 2026-11-13; two small items stay open there (the public name, a work-log file) and neither blocks the build.
 
 ## What is known about the machines
 
@@ -167,7 +167,7 @@ Gate: the capture half of T2 passes in the nested instance.
 |---|---|---|---|---|
 | 4.1 | Virtual pointer: absolute moves mapped to the streamed output or window, buttons, scroll with its phases | wayland-engineer | `src/wl/pointer.rs` | `hyprctl cursorpos`; a click focuses the test window |
 | 4.2 | Virtual keyboard: keymap, modifiers (D12), text including `é`, `€`, `ж`; every key released when a device leaves | wayland-engineer | `src/wl/keyboard.rs`, `src/keymap.rs` | text arrives intact in `sill-testwin` |
-| 4.3 | Headless output: create, size to the viewport, move the window, remove; outputs left by a crash removed at start | wayland-engineer | `src/vdisplay.rs` | created, sized, used, removed; lists equal after |
+| 4.3 | Required (N2), the default for window streams. Headless output: create, size to the viewport, move the window, remove; outputs left by a crash removed at start | wayland-engineer | `src/vdisplay.rs` | created, sized, used, removed; lists equal after |
 | 4.4 | Focus, fit, close and full screen; lock and permission detection | implementer | `src/window.rs`, `src/session.rs` | self-test steps |
 | 4.5 | Optional: clipboard over data control; gestures to workspace dispatchers | wayland-engineer | `src/wl/clipboard.rs`, `src/gestures.rs` | self-test steps |
 | 4.6 | Security review: input injection | reviewer | none | no blocker |
@@ -180,7 +180,7 @@ Gate: all of T2, cleanup included.
 |---|---|---|---|---|
 | 5.1 | Encoder choice (VA-API, NVENC, libx265) shared by both Linux backends | implementer | the shared module | unit test; `status` names the encoder |
 | 5.2 | Avahi publishing shared; TXT `r` and `p` | implementer | the shared module | `avahi-browse -rt _sill._tcp` |
-| 5.3 | Daemon and CLI; the pairing code and QR in the terminal and as a notification | implementer | `src/{daemon,cli}.rs` | CLI tests on loopback |
+| 5.3 | Daemon and CLI, port 47470 unless set (N3); the pairing code and QR in the terminal and as a notification | implementer | `src/{daemon,cli}.rs` | CLI tests on loopback |
 | 5.4 | Frame rate and capture-to-encode latency, p50 and p95, recorded | wayland-engineer | `src/metrics.rs` | numbers in the T3 output |
 | 5.5 | T3 in `verify.sh` | implementer | `verify.sh`, `hosts/scripts/t3/**` | `scripts/verify.sh T3` |
 
@@ -203,8 +203,9 @@ Gate: `verify.sh` all PASS, review clean, the package builds.
    version from 0.57 to 0.56.2, and every global the plan uses is offered. Offered is not
    working: whether a covered or headless window keeps producing frames, and what a cursor
    session delivers, are first seen in M3.
-2. **Covered windows stop updating.** Addressed by the headless output (N2). If Mark keeps it
-   optional, T2's covered-window check may fail by design.
+2. **Covered windows stop updating.** Window streams run on a headless output by default
+   (N2, a must-have). Capture in place, the fallback, may show a covered window at a low
+   rate; T2's covered-window check runs on the default path.
 3. **Virtual pointer mapping.** Hyprland's source stores the output a pointer is bound to and
    does not appear to read it; absolute moves may span the whole layout. Mark's own monitor
    sits at 12256x0, so a layout does not start at the origin. 4.1 computes the mapping itself
@@ -218,7 +219,7 @@ Gate: `verify.sh` all PASS, review clean, the package builds.
 
 ## For Session 2
 
-- Read `DECISIONS.md` part 1 first: Mark's answers change M4's size (N2) and where this runs (N1).
+- `DECISIONS.md` part 1 holds Mark's answers: the virtual display is required (N2), the port is 47470 (N3), code from afds/sill-linux may be ported with credit (N6), there is no Mac to record fixtures from (N5).
 - If `.claude/agents/` was not picked up at session start, delegate to `general-purpose` with
   the agent file's text and its model.
 - Never inject input outside an instance `nested.sh` started (D11).

@@ -1,7 +1,7 @@
 # Decisions
 
-One entry per decision: what, why, what was rejected. Part 1 needs Mark. Part 2 is decided
-and holds unless he says otherwise. Part 3 lists where the brief or the report was wrong.
+One entry per decision: what, why, what was rejected. Part 1 is what Mark decided and the
+two items still open. Part 2 was decided in Milestone 0 and holds unless he says otherwise. Part 3 lists where the brief or the report was wrong.
 Evidence for the protocol entries is in `PROTOCOL-GAP.md`, for licenses in `THIRD-PARTY.md`.
 
 Status on 2026-11-13: Milestone 0, written in a cloud session; Mark then ran
@@ -9,59 +9,46 @@ Status on 2026-11-13: Milestone 0, written in a cloud session; Mark then ran
 Nothing rests on web research alone any more for what the compositor offers; what it does
 with those protocols is first tested in M3.
 
-## 1. Needs Mark
+## 1. Mark's answers (2026-11-13) and what is still open
 
-**N1. Where the build session runs.** The brief assumes Claude Code on the Omarchy machine;
-Milestone 0 ran in a cloud container that has no Hyprland, GPU, Avahi or pacman. T2 and T3
-need a nested Hyprland, which the probe showed starting on the machine in a second; without
-a GPU Hyprland reportedly does not start. The machine has a clone and Claude Code 2.1.323.
-- Recommended: Session 2 runs on the Omarchy machine, as the brief says, from this branch.
-- Possible: M1 and M2 (T0 and T1) in a cloud session, M3 onward on the machine.
-- The brief's `/goal` reads `upstream/main`: on the machine, run
-  `git remote add upstream https://github.com/Saffsanity/sill` once.
+**N1. Where the build runs: the Omarchy machine.** Mark ran the probe there; it has the
+clone, Claude Code 2.1.323 and a working nested Hyprland. Before Session 2:
+`git switch -c hyprland-host origin/claude/youthful-einstein-pmfvsj` and
+`git remote add upstream https://github.com/Saffsanity/sill` (the brief's `/goal` reads
+`upstream/main`).
 
-**N2. Is the virtual display a must-have?** The brief lists "stream a single window while
-other windows cover it" as a must-have and the virtual display as a should-have. On Hyprland a
-window on a workspace that is not shown renders about once every 5 s (forum report,
-unverified), so a covered window stays live reliably only on an output of its own.
-- Recommended: yes. Window streams use a headless output by default, as Sill for Mac's
-  Virtual Display does; capture in place stays as the fallback when it is switched off.
-- Cost: M4 grows by the headless output work that was optional.
+**N2. The virtual display is a must-have.** Window streams use a headless output sized to
+the device by default, as Sill for Mac's Virtual Display does; capture in place is the
+fallback when it is switched off. Why: a window on a workspace that is not shown reportedly
+renders about once every 5 s, so a covered window stays live reliably only on an output of
+its own. This moves the headless output work in M4 from optional to required.
 
-**N3. The port.** Upstream's home port is ephemeral. Omarchy's ufw denies incoming
-connections, so an ephemeral port would need a new firewall rule at every start.
-- Recommended: a configurable port with a fixed default (47470, clear of afds/sill-linux's
-  47460 and NateHag's 7456), `0` meaning ephemeral. The device reads the port from mDNS, so
-  nothing on the device depends on the number.
-- Rejected: a random port chosen at first run and saved (harder to document a rule for).
+**N3. The port: 47470 by default, configurable, `0` for ephemeral.** Omarchy's ufw denies
+incoming connections, so one rule must keep working across restarts. The device reads the
+port from mDNS. Rejected: a random port saved at first run.
 
-**N4. The public name.** Internal names follow `sill-host-*`. Apache-2.0 grants no
-trademark rights, so the package and the name people see are yours to choose before any
-public release. The beta uses `sill-host-hyprland` and says "an unofficial host for the Sill
-app" wherever a person reads it.
+**N4. The name: `sill-host-hyprland` for now.** User-facing text says "an unofficial host
+for the Sill app". **Still open:** the public package name, before any public release.
 
-**N5. A Mac with Sill for Mac.** If you have one, two things get better: fixtures recorded
-from the real host (`Scripts/sillclient.py --dump`) instead of built by hand, and at T4 a
-known-good host to compare against when a step fails. Say yes or no.
+**N5. No Mac for now.** Fixtures are built by hand from the Swift definitions and checked
+against `Scripts/sillclient.py`. Mark owns a Mac and can bring it up later: ask only if T4
+fails in a way a known-good host would explain, or a fixture's shape is in doubt.
 
-**N6. Porting from afds/sill-linux.** It is Apache-2.0 Rust on the same TLS stack, tested
-against the App Store app on an iPad, and already has kinds 32, 44 and 47. The brief ranks it
-below NateHag's host and says "technique". Recommended: allow ports of its protocol code with
-credit in `hosts/NOTICE`; PR #128 stays the base.
+**N6. Code from afds/sill-linux may be ported, with credit** in `hosts/NOTICE`. PR #128
+stays the base.
 
-**N7. The nested test instance.** T2 and T3 start a second Hyprland inside your session. It
-opens as a window for the length of the run and is closed after. Input goes only to that
-instance (D11). Confirm that is acceptable while you use the machine.
+**N7. The nested test window is accepted** during T2 and T3. Input still goes only to an
+instance the harness started (D11).
 
-**N8. Minimum Hyprland.** Recommended: 0.56, the version Omarchy 4.5.0 ships (0.56.2 on
-Mark's machine), with a Lua configuration. Under Lua, `hyprctl keyword` is refused and `eval`
-is the one way to size an output; supporting the old configuration language too means two
-ways. 0.57 is untested here and joins when Omarchy ships it.
+**N8. The supported Hyprland is the one the current Omarchy ships**: 0.56.2 on Omarchy
+4.5.0 today, with a Lua configuration. Older versions and the old configuration language
+are not supported; a newer version joins when Omarchy ships it.
 
-**N9. A step file.** The repository's `CLAUDE.md` asks each branch for a note in
-`docs/steps/`; the brief allows no file outside `hosts/` and `docs/hyprland-host/` but the
-`CLAUDE.md` scoping note. Decided for now: no step file, `PLAN.md` is the record. Say if you
-want one.
+**N9. Still open, and small: a work-log file.** Upstream keeps one short note per piece of
+work in `docs/steps/` and its `CLAUDE.md` asks every branch to add one. The brief allows
+this work no file outside `hosts/` and `docs/hyprland-host/`. Until Mark says otherwise
+there is no such file: `PLAN.md` and this file are the record, and nothing outside those
+two folders is touched.
 
 ## 2. Decided
 
@@ -164,6 +151,6 @@ Session 2.
 | Brief 6: fall back to `hyprland-toplevel-export-v1` | Its Rust crate is LGPL-3.0, and the fallback is not needed from 0.54 on. |
 | Brief 2: T1 runs upstream's client; T3 is "driven by the test client" | `sillclient.py` sends input only to a listener started with `--synthetic`. T3 needs another client. |
 | Brief appendix B: T0's Windows check needs only the Rust target | `ring` compiles C even for `cargo check`, so it also needs a MinGW compiler. |
-| Brief 3: virtual display is a should-have | See N2. |
+| Brief 3: virtual display is a should-have | A must-have: N2. |
 | Brief 0 and 9: branch `hyprland-host`, an `upstream` remote, never push | Not true of a cloud session: see N1 and D20. |
 | Brief 2: every tier is automatable but T4 | T2 and T3 cannot run without a GPU session, so they cannot run in CI or a cloud container. |
