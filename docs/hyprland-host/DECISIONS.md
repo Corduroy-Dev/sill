@@ -4,15 +4,17 @@ One entry per decision: what, why, what was rejected. Part 1 needs Mark. Part 2 
 and holds unless he says otherwise. Part 3 lists where the brief or the report was wrong.
 Evidence for the protocol entries is in `PROTOCOL-GAP.md`, for licenses in `THIRD-PARTY.md`.
 
-Status on 2026-11-13: Milestone 0, written in a cloud session without the Omarchy machine.
-Entries marked *(probe)* rest on web research and are confirmed or changed by the output of
-`docs/hyprland-host/probe.sh`.
+Status on 2026-11-13: Milestone 0, written in a cloud session; Mark then ran
+`docs/hyprland-host/probe.sh` on the Omarchy machine and `PLAN.md` holds what it found.
+Entries marked *(probe)* still rest on web research: the probe could not read the Wayland
+globals (`wayland-info` was not installed yet).
 
 ## 1. Needs Mark
 
 **N1. Where the build session runs.** The brief assumes Claude Code on the Omarchy machine;
 Milestone 0 ran in a cloud container that has no Hyprland, GPU, Avahi or pacman. T2 and T3
-need a nested Hyprland with a GPU, and Hyprland does not start without one *(probe)*.
+need a nested Hyprland, which the probe showed starting on the machine in a second; without
+a GPU Hyprland reportedly does not start. The machine has a clone and Claude Code 2.1.323.
 - Recommended: Session 2 runs on the Omarchy machine, as the brief says, from this branch.
 - Possible: M1 and M2 (T0 and T1) in a cloud session, M3 onward on the machine.
 - The brief's `/goal` reads `upstream/main`: on the machine, run
@@ -51,9 +53,10 @@ credit in `hosts/NOTICE`; PR #128 stays the base.
 opens as a window for the length of the run and is closed after. Input goes only to that
 instance (D11). Confirm that is acceptable while you use the machine.
 
-**N8. Minimum Hyprland.** *(probe)* Recommended: 0.57, the version Omarchy 4.5 ships, and no
-older. 0.57 removed the old configuration language, so supporting 0.54 to 0.56 too means two
-ways to size an output.
+**N8. Minimum Hyprland.** Recommended: 0.56, the version Omarchy 4.5.0 ships (0.56.2 on
+Mark's machine), with a Lua configuration. Under Lua, `hyprctl keyword` is refused and `eval`
+is the one way to size an output; supporting the old configuration language too means two
+ways. 0.57 is untested here and joins when Omarchy ships it.
 
 **N9. A step file.** The repository's `CLAUDE.md` asks each branch for a note in
 `docs/steps/`; the brief allows no file outside `hosts/` and `docs/hyprland-host/` but the
@@ -82,7 +85,7 @@ trait beside it; a side channel only the Hyprland crate knows.
 written. The Hyprland backend hands SHM frames (XRGB8888, as BGRA) to core's `FfmpegEncoder`.
 The brief's fixed decision 7 stands. No dmabuf in the beta.
 
-**D5. One capture path.** *(probe)* `ext-image-copy-capture-v1` with output and toplevel
+**D5. One capture path.** *(probe: the globals are unread)* `ext-image-copy-capture-v1` with output and toplevel
 sources and a cursor session. No fallback to `hyprland-toplevel-export-v1` or
 `wlr-screencopy`: Hyprland has had the `ext` path since 0.54, the only crate for the Hyprland
 protocol is LGPL, and a second path doubles T2. This departs from a lead in the brief's
@@ -90,7 +93,7 @@ section 6, not from a fixed decision.
 
 **D6. Our own Hyprland IPC client.** `hyprland-rs` is GPL-3.0 and older than 0.57's IPC.
 Requests over `.socket.sock`, events over `.socket2.sock`, runtime changes through
-`eval` *(probe)*.
+`eval`: the probe sized a headless output with `eval 'hl.monitor({…})'` on 0.56.2.
 
 **D7. TLS with pairing by default; unpaired keys refused in the handshake.** As the Swift
 host does (`Sources/SillHost/DoorPolicy.swift:69-79`). The plain door needs
@@ -135,10 +138,10 @@ reach them, without changing what the X11 crate does.
 temporary file. Tests always pass `--config-dir` with a temporary folder and never touch
 `~/.config`.
 
-**D18. Locked session.** Detected over IPC *(probe)*, reported as `locked: true` with a black
+**D18. Locked session.** Detected over IPC (`hyprctl locked` answers on 0.56.2), reported as `locked: true` with a black
 placeholder. Never unlocked by the host.
 
-**D19. Hyprland's permissions.** If `ecosystem:enforce_permissions` is on, the daemon prints
+**D19. Hyprland's permissions.** Off on Mark's machine. If `ecosystem:enforce_permissions` is on, the daemon prints
 the rule to add and stops. It never edits configuration. A denied capture returns black
 frames, so the self-test checks pixels.
 
@@ -155,7 +158,9 @@ Session 2.
 | Brief 5: NateHag's host is the best evidence of what a device needs | afds/sill-linux has the only dated device run and is closer to this work (Rust, same stack). NateHag's names no app version or device. |
 | Report: both community hosts' licenses unverified | Both Apache-2.0. |
 | Report: the red and blue swap is an NVIDIA bug | Also reproduced on AMD; fixed in Hyprland by a change merged in May 2026. T2's colour check stays. |
-| Brief 6: size the headless output with a monitor rule; hypr-rdp as the technique | hypr-rdp uses `hyprctl keyword`, which 0.57 removed. *(probe)* |
+| Brief 6: size the headless output with a monitor rule; hypr-rdp as the technique | hypr-rdp uses `hyprctl keyword`, which a Lua configuration refuses: seen on 0.56.2, where `eval` worked. |
+| Milestone 0's own web research: Omarchy 4.5 ships Hyprland 0.57 | It ships 0.56.2. |
+| Report: Omarchy's Hyprland is 0.57.0 (from one user's report) | 0.56.2 on 4.5.0-3. |
 | Brief 6: fall back to `hyprland-toplevel-export-v1` | Its Rust crate is LGPL-3.0, and the fallback is not needed from 0.54 on. |
 | Brief 2: T1 runs upstream's client; T3 is "driven by the test client" | `sillclient.py` sends input only to a listener started with `--synthetic`. T3 needs another client. |
 | Brief appendix B: T0's Windows check needs only the Rust target | `ring` compiles C even for `cargo check`, so it also needs a MinGW compiler. |

@@ -85,10 +85,11 @@ if [ -z "$SILL_PROBE_NO_NESTED" ] && command -v Hyprland >/dev/null && [ -n "$XD
     fi
     echo "-- output remove"; h output remove SILLPROBE; sleep 1
     h monitors | grep -E '^Monitor'
-    echo "-- exit"; h dispatch exit; sleep 1
   fi
   kill $P 2>/dev/null; wait $P 2>/dev/null; trap - EXIT
   echo "-- last log lines"; grep -i -E 'error|crit|allocator|backend' "$T/log" | tail -8; rm -rf "$T"
-  echo "-- instances left: $(ls "$XDG_RUNTIME_DIR/hypr" 2>/dev/null | wc -l) (before: $(echo "$before" | grep -c .))"
+  # Hyprland leaves its runtime folder behind; remove the one this run made, once nothing has it.
+  if [ -n "$sig" ] && [ "$sig" != "$HYPRLAND_INSTANCE_SIGNATURE" ] && ! kill -0 $P 2>/dev/null; then rm -rf "$XDG_RUNTIME_DIR/hypr/$sig"; fi
+  echo "-- instances running now: $(hyprctl instances 2>/dev/null | grep -c '^instance') (expected 1: your own)"
 fi
 sec done

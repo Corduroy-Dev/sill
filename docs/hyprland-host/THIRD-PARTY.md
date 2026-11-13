@@ -20,7 +20,7 @@ Viewer). It changes nothing under `Scripts/`.
 | afds/sill-linux | `18218cc` | Apache-2.0, with a `NOTICE` (Copyright 2026 Deniss Afonin) | Read for code. Rust, the same rustls and ring stack, and the only host with a dated run against the App Store app. Any port of its code is credited in `hosts/NOTICE`. |
 | NateHag/Sill-Viewer, `linux-host/` | `82179a7` | Apache-2.0 at the repository root, no copyright line; `linux-host/` has no license of its own, so the root one covers it | Read for code. It ships a prebuilt binary, `linux-host/sill_linux/vkenc/sill-vkenc`: never run it. |
 | any1/wayvnc | `1d417b5` | ISC | Read for code (technique: screencopy, virtual input). |
-| MuNeNICK/hypr-rdp | not cloned | MIT according to its README; the LICENSE file itself was not read | Behaviour only until the file is read. Its headless sizing uses `hyprctl keyword`, which Hyprland 0.57 removed. |
+| MuNeNICK/hypr-rdp | not cloned | MIT according to its README; the LICENSE file itself was not read | Behaviour only until the file is read. Its headless sizing uses `hyprctl keyword`, which Hyprland refuses under a Lua configuration (seen on 0.56.2). |
 | atx/wtype | not cloned | MIT (to confirm when cloned) | Technique for typing text through a temporary keymap. |
 | hyprwm/Hyprland, hyprland-protocols | web | BSD-3-Clause | Protocol XML and behaviour. |
 
