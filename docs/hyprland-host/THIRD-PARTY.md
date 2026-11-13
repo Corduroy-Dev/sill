@@ -28,7 +28,7 @@ Viewer). It changes nothing under `Scripts/`.
 
 | Crate | License | Instead |
 |---|---|---|
-| `wayland-protocols-hyprland` 1.2.0 | LGPL-3.0-only | Not needed: Hyprland 0.54 and later capture windows through `ext-image-copy-capture-v1`. If a Hyprland-only protocol is ever needed, generate bindings from the BSD-3 XML. |
+| `wayland-protocols-hyprland` 1.2.0 | LGPL-3.0-only | Not used. Capture goes through `ext-image-copy-capture-v1`. The one Hyprland-only protocol wanted, `hyprland-toplevel-mapping-v1` (a capture handle's window address), gets bindings generated from hyprland-protocols' BSD-3 XML. |
 | `hyprland` (hyprland-rs) 0.3.13 | GPL-3.0-or-later | A small IPC client of our own. It also predates the Lua configuration and the 0.57 IPC changes. |
 
 ## Crates the backend expects to add

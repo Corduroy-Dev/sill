@@ -7,7 +7,7 @@ The task list for `BRIEF.md`. A fresh session resumes from this file, `DECISIONS
 
 | Milestone | State | Gate evidence |
 |---|---|---|
-| M0 recon and plan | **done** | The three documents; the probe's output below. Two readings are still owed (globals, `vainfo`) |
+| M0 recon and plan | **done** | The three documents; the probe's output and the globals below |
 | M1 import and baseline | not started | |
 | M2 protocol up to date | not started | |
 | M3 backend: see and list | not started | |
@@ -15,7 +15,7 @@ The task list for `BRIEF.md`. A fresh session resumes from this file, `DECISIONS
 | M5 end to end | not started | |
 | M6 package and hand over | not started | |
 
-Open before M1: Mark's answers to `DECISIONS.md` part 1, and the two readings the probe missed.
+Open before M1: Mark's answers to `DECISIONS.md` part 1.
 
 ## What is known about the machines
 
@@ -41,10 +41,26 @@ Open before M1: Mark's answers to `DECISIONS.md` part 1, and the two readings th
 | Claude Code | 2.1.323 | 2.1.139 or later |
 | **Nested instance** | Starts in 1 s as a window (`WAYLAND-1`, its own signature and `wayland-2`). A headless output was created, sized to 1280x800 by `eval`, and removed | as expected |
 
-**Still unread on the machine** (the tools were installed after the probe ran):
-- The Wayland globals: `wayland-info` was missing. The capture, virtual input and data
-  control protocols are therefore still expected, not seen.
-- VA-API's HEVC encode profile: `vainfo` was missing.
+**Wayland globals on the machine** (`wayland-info`, second run), each one the plan uses:
+
+| Need | Global offered | Version |
+|---|---|---|
+| Capture | `ext_image_copy_capture_manager_v1` | 1 |
+| Output source | `ext_output_image_capture_source_manager_v1` | 1 |
+| Window source | `ext_foreign_toplevel_image_capture_source_manager_v1`, `ext_foreign_toplevel_list_v1` | 1, 1 |
+| Window handle to Hyprland address | `hyprland_toplevel_mapping_manager_v1` | 1 |
+| Pointer | `zwlr_virtual_pointer_manager_v1` | 2 |
+| Keyboard | `zwp_virtual_keyboard_manager_v1` | 1 |
+| Clipboard | `ext_data_control_manager_v1` (also `zwlr_data_control_manager_v1` 2) | 1 |
+| Lock | `hyprland_lock_notifier_v1`, `ext_session_lock_manager_v1` | 1, 1 |
+| Buffers | `wl_shm` 2, `zwp_linux_dmabuf_v1` 5 | |
+| Not used, present | `zwlr_screencopy_manager_v1` 3, `hyprland_toplevel_export_manager_v1` 2 | |
+
+**Encoder:** VA-API on Mesa 26.2.5 (radeonsi) offers `VAProfileHEVCMain` and `Main10` with
+`VAEntrypointEncSlice`, so `hevc_vaapi` is the expected choice; libx265 is the fallback.
+
+**After the probe:** one Hyprland instance and one process were running, so the nested
+instance left only its folder behind.
 
 **What the nested run taught the harness** (task 3.2):
 - `hyprctl dispatch exit` fails under Lua ("expected a dispatcher"). Stop the instance by
@@ -140,7 +156,7 @@ and `/bin/ps`; where one is missing T1 prints FAIL saying which, never SKIP as a
 | 3.3 | `sill-testwin`: an SHM window with colour bars that logs keys and text | implementer | `hosts/sill-testwin/**` | runs in the nested instance |
 | 3.4 | Output capture into `FfmpegEncoder`; frame size and pixel colours against the bars, red and blue the right way round | wayland-engineer | `src/wl/{mod,capture}.rs` | self-test: output |
 | 3.5 | Toplevel capture, updating while covered; cursor session to kind 14 (in points); pointer place for kind 26 | wayland-engineer | `src/wl/capture.rs`, `src/wl/cursor.rs` | self-test: window, covered, cursor |
-| 3.6 | Catalog: windows with titles and apps, `u32` ids, change events; apps and icons from the shared `.desktop` code (D16) | implementer | `src/catalog.rs`, the moved module | window list equals `hyprctl clients -j` |
+| 3.6 | Catalog: windows with titles and apps, `u32` ids, change events; a capture handle matched to its Hyprland address through `hyprland_toplevel_mapping_manager_v1` (bindings generated from the BSD-3 XML), else by app id and title; apps and icons from the shared `.desktop` code (D16) | implementer | `src/catalog.rs`, the moved module | window list equals `hyprctl clients -j` |
 | 3.7 | `--self-test` and the capture half of T2 | implementer | `src/selftest.rs`, `verify.sh` | `scripts/verify.sh T2` (capture) |
 
 Gate: the capture half of T2 passes in the nested instance.
@@ -183,9 +199,10 @@ Gate: `verify.sh` all PASS, review clean, the package builds.
 
 ## Risks, most likely first
 
-1. **The compositor differs from the research.** The probe already moved the version from
-   0.57 to 0.56.2. The Wayland globals are still unread; M3's first task reads them before
-   any design rests on them (D5).
+1. **The compositor behaves differently from what its globals promise.** The probe moved the
+   version from 0.57 to 0.56.2, and every global the plan uses is offered. Offered is not
+   working: whether a covered or headless window keeps producing frames, and what a cursor
+   session delivers, are first seen in M3.
 2. **Covered windows stop updating.** Addressed by the headless output (N2). If Mark keeps it
    optional, T2's covered-window check may fail by design.
 3. **Virtual pointer mapping.** Hyprland's source stores the output a pointer is bound to and

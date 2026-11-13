@@ -6,8 +6,8 @@ Evidence for the protocol entries is in `PROTOCOL-GAP.md`, for licenses in `THIR
 
 Status on 2026-11-13: Milestone 0, written in a cloud session; Mark then ran
 `docs/hyprland-host/probe.sh` on the Omarchy machine and `PLAN.md` holds what it found.
-Entries marked *(probe)* still rest on web research: the probe could not read the Wayland
-globals (`wayland-info` was not installed yet).
+Nothing rests on web research alone any more for what the compositor offers; what it does
+with those protocols is first tested in M3.
 
 ## 1. Needs Mark
 
@@ -85,7 +85,7 @@ trait beside it; a side channel only the Hyprland crate knows.
 written. The Hyprland backend hands SHM frames (XRGB8888, as BGRA) to core's `FfmpegEncoder`.
 The brief's fixed decision 7 stands. No dmabuf in the beta.
 
-**D5. One capture path.** *(probe: the globals are unread)* `ext-image-copy-capture-v1` with output and toplevel
+**D5. One capture path.** (All four globals are offered on Mark's 0.56.2.) `ext-image-copy-capture-v1` with output and toplevel
 sources and a cursor session. No fallback to `hyprland-toplevel-export-v1` or
 `wlr-screencopy`: Hyprland has had the `ext` path since 0.54, the only crate for the Hyprland
 protocol is LGPL, and a second path doubles T2. This departs from a lead in the brief's
